@@ -1,10 +1,69 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block title %}
+  <title>Home</title>
+{% endblock %}
+
+{% block content %}
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-lg-10">
+        <h1>TODO list</h1>
+      </div>
+      <div class="col-lg-2">
+        <a class="btn btn-info" href="{% url 'task:task-create' %}">Create</a>
+      </div>
+    </div>
+
+    {% for task in task_list %}
+      <div class="card mt-3">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-lg-9">
+              <h2>
+                {{ task.content }}
+                {% if task.progres %}
+                  <span class="text-success">Done</span>
+                {% else %}
+                  <span class="text-danger">Not done</span>
+                {% endif %}
+              </h2>
+
+              <p>
+                Created: <i>{{ task.created_date }}</i>
+                {% if task.deadline_date %}
+                  <span class="text-danger">Deadline: <i>{{ task.deadline_date }}</i></span>
+                {% endif %}
+              </p>
+              <div class="text-muted">
+                <ul class="list-inline">
+                  <li class="list-inline-item">Tags:</li>
+                  {% if task.tags.all %}
+                    {% for tag in task.tags.all %}
+                      <li class="list-inline-item">{{ tag.name }}</li>
+                    {% endfor %}
+                  {% else %}
+                    <li class="list-inline-item">no tags!</li>
+                  {% endif %}
+                  <li class="list-inline-item"><a href="{% url 'task:task-update' pk=task.pk %}">Update</a></li>
+                  <li class="list-inline-item"><a href="{% url 'task:task-delete' pk=task.pk %}">Delete</a></li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="col-lg-3">
+              <form action="{% url 'task:task-change-progres' pk=task.pk %}" method="post">
+                {% csrf_token %}
+                {% if task.progres %}
+                  <button class="btn btn-secondary" type="submit">Undo</button>
+                {% else %}
+                  <button class="btn btn-success" type="submit">Complete</button>
+                {% endif %}
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endblock %}
